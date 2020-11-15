@@ -1,6 +1,10 @@
 import Unsplash from 'unsplash-js';
-import React from 'react';
+import React from "react";
 import _ from 'lodash';
+import { Button } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 // import ReactDOM from 'react-dom';
 //
@@ -24,8 +28,6 @@ class App extends React.Component {
             images: {},
         };
         this.prev = window.scrollY;
-
-
         this.throttleHandleChange = _.debounce(this.throttleHandleChange, 500);
     }
 
@@ -75,12 +77,24 @@ function LoadingScreen() {
 }
 
 class Gallery extends React.Component {
-    state = {
-        thumbs: [],
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            thumbs: [],
+            image: {},
+        };
+    }
 
     handleClick(id) {
         console.log(id);
+        unsplash.photos.getPhoto(id)
+            .then(toJson)
+            .then(json => {
+                console.log('debug');
+                console.log(json);
+                this.setState({image:json});
+            });
+
     }
 
     renderThumb(images) {
@@ -101,10 +115,15 @@ class Gallery extends React.Component {
     }
 
     render() {
+        console.log('this.image');
+        console.log(this.state.image);
         return (
             <div className="gallery">
+
                 <h2>Gallery wall</h2>
                 <div className="waterfall">{this.renderThumb(this.props.images)}</div>
+
+                <PopupModal img={this.state.image} />
             </div>
         );
     }
@@ -119,6 +138,58 @@ function Thumb (props) {
             />
         </div>
     );
+}
+
+class PopupModal extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.handleShow = this.handleShow.bind(this);
+        this.handleClose = this.handleClose.bind(this);
+
+        this.state = {
+            show: false
+        };
+    }
+
+    componentDidUpdate(prevProps) {
+        // Typical usage (don't forget to compare props):
+        console.log('image update');
+        if (this.props.img.id !== prevProps.img.id) {
+            this.handleShow();
+        }
+    }
+
+    handleClose() {
+        this.setState({ show: false });
+    }
+
+    handleShow() {
+        this.setState({ show: true });
+    }
+
+    render() {
+        return (
+            <div>
+                <Modal show={this.state.show} onHide={this.handleClose} dialogClassName="custom-modal">
+                    <Modal.Header closeButton>
+                        <Modal.Title>{this.props.img.description}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>By: {this.props.img.user && this.props.img.user.name}</h4>
+                        <img
+                            src={this.props.img.urls && this.props.img.urls.full}
+                            alt={this.props.img.alt_description}
+                        />
+                        <p>{this.props.img.descirption}</p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={this.handleClose}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
+            </div>
+        );
+    }
 }
 
 export default App;
