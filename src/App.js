@@ -12,8 +12,8 @@ import './gallery.css';
 
 // TODO: Replace "APP_ACCESS_KEY" with your own key, which
 // can be generated here: https://unsplash.com/developers
-const unsplash = new Unsplash({accessKey: '08LdVyqWqRjW9u94CuN2T9yaUx-tVA-X4h4IuQGw2eI'});
-// const unsplash = new Unsplash({accessKey: '1rG7Hp7SYcsk8PgVo0rhKkWBgEfTReln-qA5M4EwQcU'});
+// const unsplash = new Unsplash({accessKey: '08LdVyqWqRjW9u94CuN2T9yaUx-tVA-X4h4IuQGw2eI'});
+const unsplash = new Unsplash({accessKey: '1rG7Hp7SYcsk8PgVo0rhKkWBgEfTReln-qA5M4EwQcU'});
 const toJson = require('unsplash-js').toJson;
 
 //the number of loading images for initial loading and each scroll
@@ -25,9 +25,12 @@ class App extends React.Component {
         this.state = {
             isLoading: true,
             images: {},
+            searchItem: '',
         };
         this.prev = window.scrollY;
+        this.page = 0;
         this.throttleHandleChange = _.debounce(this.throttleHandleChange, 500);
+        this.navBarClick = this.navBarClick.bind(this);
     }
 
     componentDidMount() {
@@ -39,20 +42,36 @@ class App extends React.Component {
     handleScroll = (e) => {
         const window = e.currentTarget;
         if (this.prev < window.scrollY) {
-            this.throttleHandleChange();
+            this.throttleHandleChange(this.state.searchItem);
         }
         this.prev = window.scrollY;
     };
 
-    throttleHandleChange = () => this.loadImages();
+    throttleHandleChange = (i) => this.loadImages(i);
+
+    navBarClick(item) {
+        if(item !== this.state.searchItem) {
+            this.page=0;
+            this.loadImages(item);
+        }
+    }
 
     //init the gallery, include fetching Random Photos
-    loadImages() {
-        unsplash.photos.getRandomPhoto({count: loadingImageNum})
-            .then(toJson)
-            .then(json => {
-                this.setState({images: json, isLoading: false});
-            });
+    loadImages(item) {
+        if(item) {
+            this.page++;
+            unsplash.search.photos(item,this.page,loadingImageNum)
+                .then(toJson)
+                .then(json => {
+                    this.setState({images: json.results, isLoading: false, searchItem:item});
+                });
+        } else {
+                unsplash.photos.getRandomPhoto({count: loadingImageNum})
+                    .then(toJson)
+                    .then(json => {
+                        this.setState({images: json, isLoading: false, searchItem:''});
+                    });
+        }
     }
 
     render() {
@@ -60,8 +79,8 @@ class App extends React.Component {
         return (
             <div>
                 <h2>Gallery wall</h2>
-                <NavBar />
-                <Gallery images={this.state.images}/>
+                <NavBar navBarClick={this.navBarClick} />
+                <Gallery images={this.state.images} item={this.state.searchItem}/>
                 {isLoading && <LoadingScreen />}
             </div>
         );
@@ -90,14 +109,27 @@ class Gallery extends React.Component {
         this.imageList =[]
         this.imageIndex = -1;
         this.prevId = -1;
+        this.init = false;
 
         this.handleClick = this.handleClick.bind(this);
     }
 
     componentDidUpdate(prevProps) {
+        if(this.props.item !== prevProps.item) {
+            this.initNewRender();
+        }
+
         if (isNaN(prevProps.images.length) || this.props.images[1].id !== prevProps.images[1].id) {
             this.renderThumb(this.props.images);
         }
+    }
+
+    initNewRender() {
+        this.imageList =[]
+        this.imageIndex = -1;
+        this.prevId = -1;
+        this.init = true;
+        this.setState({image:{}, currentId:0,forcePopup:false});
     }
 
     handleClick(id) {
@@ -125,10 +157,10 @@ class Gallery extends React.Component {
     }
 
     renderThumb(images) {
-        const thumbs = this.state.thumbs;
+        const thumbs = this.init? []:this.state.thumbs;
 
         if( images.length > 0) {
-            this.imageIndex = this.state.imageListLastIndex;
+            this.imageIndex = this.init? -1:this.state.imageListLastIndex;
             if(images.length > 0) {
                 thumbs.push(images.map((data) => {
                     this.imageIndex++;
@@ -137,9 +169,8 @@ class Gallery extends React.Component {
                 }));
             }
             this.setState({imageListLastIndex:this.imageIndex});
-
         }
-
+        this.init = false;
         this.setState({thumbs:thumbs});
     }
 
@@ -177,7 +208,7 @@ class PopupModal extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if ((this.props.forcePopup || this.props.img.id !== prevProps.img.id) && !this.state.show)  {
+        if ((this.props.forcePopup || this.props.img.id !== prevProps.img.id) && !this.state.show && this.props.img.id)  {
             this.handleShow();
         }
     }
@@ -217,22 +248,36 @@ class PopupModal extends React.Component {
     }
 }
 
-function NavBar() {
+class NavBar  extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            val: ""
+        };
+    }
+
+    onSubmit = () => {
+        this.props.navBarClick(this.state.val);
+    };
+
+    render() {
     return(
         <>
         <Navbar variant="dark">
             <Nav className="mr-auto">
-                <Nav.Link href="#random">Random</Nav.Link>
-                <Nav.Link href="#animal">Animal</Nav.Link>
-                <Nav.Link href="#nature">Nature</Nav.Link>
-                <Nav.Link href="#people">People</Nav.Link>
+                <Nav.Link href="#random" onClick={()=>this.props.navBarClick()}>Random</Nav.Link>
+                <Nav.Link href="#animal" onClick={()=>this.props.navBarClick('animal')}>Animal</Nav.Link>
+                <Nav.Link href="#nature" onClick={()=>this.props.navBarClick('nature')}>Nature</Nav.Link>
+                <Nav.Link href="#people" onClick={()=>this.props.navBarClick('people')}>People</Nav.Link>
             </Nav>
             <Form inline>
-                <FormControl type="text" placeholder="Search" className="mr-sm-2" />
-                <Button variant="outline-info">Search</Button>
+                <FormControl type="text" placeholder="Search" className="mr-sm-2" onChange={e => this.setState({ val: e.target.value })}/>
+                <Button variant="outline-info" onClick={this.onSubmit}>Search</Button>
             </Form>
         </Navbar>
         </>
     );
+    }
 }
 export default App;
