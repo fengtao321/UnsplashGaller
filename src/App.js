@@ -164,24 +164,18 @@ class PopupModal extends React.Component {
         this.state = {
             show: false,
         };
-        this.lastId = -1;
+
         this.handleShow = this.handleShow.bind(this);
         this.handleClose = this.handleClose.bind(this);
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.img.id && (this.state.lastId < 0 || this.props.img.id !== this.lastId)) {
-            this.lastId = this.props.img.id;
+        if (this.props.img.id !== prevProps.img.id) {
             this.handleShow();
         }
     }
 
     handleClose() {
-        // Simple debounce function, in case the user click one image too fast.
-        setTimeout(
-            () => this.lastId = -1,
-            100
-        );
         this.setState({ show: false });
     }
 
