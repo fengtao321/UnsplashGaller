@@ -13,8 +13,8 @@ import './gallery.css';
 
 // TODO: Replace "APP_ACCESS_KEY" with your own key, which
 // can be generated here: https://unsplash.com/developers
-// const unsplash = new Unsplash({accessKey: '08LdVyqWqRjW9u94CuN2T9yaUx-tVA-X4h4IuQGw2eI'});
-const unsplash = new Unsplash({accessKey: '1rG7Hp7SYcsk8PgVo0rhKkWBgEfTReln-qA5M4EwQcU'});
+const unsplash = new Unsplash({accessKey: '08LdVyqWqRjW9u94CuN2T9yaUx-tVA-X4h4IuQGw2eI'});
+// const unsplash = new Unsplash({accessKey: '1rG7Hp7SYcsk8PgVo0rhKkWBgEfTReln-qA5M4EwQcU'});
 const toJson = require('unsplash-js').toJson;
 
 //the number of loading images for initial loading and each scroll
@@ -85,9 +85,11 @@ class Gallery extends React.Component {
             image: {},
             currentId: 0,
             imageListLastIndex:-1,
+            forcePopup:false,
         };
         this.imageList =[]
         this.imageIndex = -1;
+        this.prevId = -1;
 
         this.handleClick = this.handleClick.bind(this);
     }
@@ -100,7 +102,16 @@ class Gallery extends React.Component {
 
     handleClick(id) {
         if(id > -1) {
-            this.getPhotoAccordingToId(this.imageList[id], id);
+            if(this.prevId === id) {
+                this.setState({forcePopup: true});
+                setTimeout(
+                    () => this.setState({ forcePopup: false}),
+                    100
+                );
+            } else {
+                this.prevId = id;
+                this.getPhotoAccordingToId(this.imageList[id], id);
+            }
         }
     }
 
@@ -141,7 +152,7 @@ class Gallery extends React.Component {
             <div className="gallery">
                 <h2>Gallery wall</h2>
                 <div className="waterfall">{this.state.thumbs}</div>
-                <PopupModal img={this.state.image} id={this.state.currentId} showNext={showNext} onClick={this.handleClick} />
+                <PopupModal img={this.state.image} forcePopup={this.state.forcePopup} id={this.state.currentId} showNext={showNext} onClick={this.handleClick} />
             </div>
         );
     }
@@ -170,7 +181,7 @@ class PopupModal extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.img.id !== prevProps.img.id) {
+        if ((this.props.forcePopup || this.props.img.id !== prevProps.img.id) && !this.state.show)  {
             this.handleShow();
         }
     }
@@ -180,7 +191,6 @@ class PopupModal extends React.Component {
     }
 
     handleShow() {
-        console.log('show modal');
         this.setState({ show: true });
     }
 
