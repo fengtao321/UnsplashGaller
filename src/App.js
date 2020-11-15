@@ -1,8 +1,7 @@
 import Unsplash from 'unsplash-js';
 import React from "react";
 import _ from 'lodash';
-import { Button } from 'react-bootstrap';
-import { Modal } from 'react-bootstrap';
+import { Button, Navbar, Nav, Modal, Form, FormControl } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ReactDOM from 'react-dom';
 
@@ -49,7 +48,6 @@ class App extends React.Component {
 
     //init the gallery, include fetching Random Photos
     loadImages() {
-        console.log('lazy loading');
         unsplash.photos.getRandomPhoto({count: loadingImageNum})
             .then(toJson)
             .then(json => {
@@ -61,6 +59,8 @@ class App extends React.Component {
         const isLoading = this.state.isLoading;
         return (
             <div>
+                <h2>Gallery wall</h2>
+                <NavBar />
                 <Gallery images={this.state.images}/>
                 {isLoading && <LoadingScreen />}
             </div>
@@ -125,12 +125,9 @@ class Gallery extends React.Component {
     }
 
     renderThumb(images) {
-        console.log(images);
         const thumbs = this.state.thumbs;
 
         if( images.length > 0) {
-            // let index= this.baseIndex * loadingImageNum;
-            console.log("debug here");
             this.imageIndex = this.state.imageListLastIndex;
             if(images.length > 0) {
                 thumbs.push(images.map((data) => {
@@ -150,7 +147,6 @@ class Gallery extends React.Component {
         let showNext = (this.state.currentId !== this.state.imageListLastIndex);
         return (
             <div className="gallery">
-                <h2>Gallery wall</h2>
                 <div className="waterfall">{this.state.thumbs}</div>
                 <PopupModal img={this.state.image} forcePopup={this.state.forcePopup} id={this.state.currentId} showNext={showNext} onClick={this.handleClick} />
             </div>
@@ -195,7 +191,6 @@ class PopupModal extends React.Component {
     }
 
     render() {
-        console.log('DEBUG  DEBUG');
         return (
             ReactDOM.createPortal(
             <div>
@@ -220,5 +215,24 @@ class PopupModal extends React.Component {
             </div>,document.body)
         );
     }
+}
+
+function NavBar() {
+    return(
+        <>
+        <Navbar variant="dark">
+            <Nav className="mr-auto">
+                <Nav.Link href="#random">Random</Nav.Link>
+                <Nav.Link href="#animal">Animal</Nav.Link>
+                <Nav.Link href="#nature">Nature</Nav.Link>
+                <Nav.Link href="#people">People</Nav.Link>
+            </Nav>
+            <Form inline>
+                <FormControl type="text" placeholder="Search" className="mr-sm-2" />
+                <Button variant="outline-info">Search</Button>
+            </Form>
+        </Navbar>
+        </>
+    );
 }
 export default App;

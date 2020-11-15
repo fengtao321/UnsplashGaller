@@ -10,11 +10,40 @@ h2,h3,h4,p,.h4 {
 }
 
 /* Gallery Part */
-#root .gallery h2 {
+h2 {
   color: white;
   text-align: center;
   font-size: 50px;
   margin: 30px auto;
+}
+
+/*Nav*/
+.navbar {
+  background: none;
+}
+
+@media only screen and (max-width: 650px) {
+  .navbar {
+    flex-direction: column;
+  }
+
+  .form-inline {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .navbar-expand .navbar-nav {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  input.form-control {
+    width: calc(100% - 100px);
+  }
+
+  .waterfall {
+    width: 100% !important;
+  }
 }
 
 /*Pop-up Part*/
