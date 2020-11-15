@@ -1,14 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
-/* Gallery Part */
 
+/* Common Class */
 h2,h3,h4,p,.h4 {
   font-family: 'Architects Daughter', cursive;
 }
 
+.hidden {
+  display: none !important;
+}
+
+/* Gallery Part */
 #root .gallery h2 {
   color: white;
   text-align: center;
   font-size: 50px;
+  margin: 30px auto;
 }
 
 /*Pop-up Part*/
@@ -18,6 +24,41 @@ h2,h3,h4,p,.h4 {
 
 .custom-modal img {
   width: 100%;
+}
+
+.arrow {
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  display: block;
+  padding: 3px;
+  position: absolute;
+  top: 350px;
+}
+
+.next {
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+  right: -30px;
+}
+
+.prev {
+  transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+  left:-30px;
+}
+
+@media only screen and (max-width: 767px) {
+  .custom-modal {
+    max-width: 100%;
+  }
+
+  .next {
+    right: 30px;
+  }
+
+  .prev {
+    left: 30px;
+  }
 }
 
 /* Loading Part */
