@@ -80,7 +80,7 @@ class App extends React.Component {
                 <h2>Gallery wall</h2>
                 <NavBar navBarClick={this.navBarClick}/>
                 <Gallery images={this.state.images} item={this.state.searchItem}/>
-                {isLoading && <LoadingScreen/>}
+                {this.state.sisLoading && <LoadingScreen/>}
             </div>
         );
     }
