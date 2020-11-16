@@ -12,8 +12,8 @@ import './gallery.css';
 
 // TODO: Replace "APP_ACCESS_KEY" with your own key, which
 // can be generated here: https://unsplash.com/developers
-// const unsplash = new Unsplash({accessKey: '08LdVyqWqRjW9u94CuN2T9yaUx-tVA-X4h4IuQGw2eI'});
-const unsplash = new Unsplash({accessKey: '1rG7Hp7SYcsk8PgVo0rhKkWBgEfTReln-qA5M4EwQcU'});
+const unsplash = new Unsplash({accessKey: '08LdVyqWqRjW9u94CuN2T9yaUx-tVA-X4h4IuQGw2eI'});
+// const unsplash = new Unsplash({accessKey: '1rG7Hp7SYcsk8PgVo0rhKkWBgEfTReln-qA5M4EwQcU'});
 const toJson = require('unsplash-js').toJson;
 
 //the number of loading images for initial loading and each scroll
@@ -75,13 +75,12 @@ class App extends React.Component {
     }
 
     render() {
-        const isLoading = this.state.isLoading;
         return (
             <div>
                 <h2>Gallery wall</h2>
                 <NavBar navBarClick={this.navBarClick} />
                 <Gallery images={this.state.images} item={this.state.searchItem}/>
-                {isLoading && <LoadingScreen />}
+                {this.state.isLoading && <LoadingScreen />}
             </div>
         );
     }
@@ -192,6 +191,7 @@ function Thumb (props) {
                 src={props.url}
                 alt={props.desc}
             />
+            <p>{props.url}</p>
         </div>
     );
 }
