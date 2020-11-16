@@ -1,7 +1,7 @@
 import Unsplash from 'unsplash-js';
 import React from "react";
 import _ from 'lodash';
-import { Button, Navbar, Nav, Modal, Form, FormControl } from 'react-bootstrap';
+import {Button, Navbar, Nav, Modal, Form, FormControl} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ReactDOM from 'react-dom';
 
@@ -50,27 +50,27 @@ class App extends React.Component {
     throttleHandleChange = (i) => this.loadImages(i);
 
     navBarClick(item) {
-        if(item !== this.state.searchItem) {
-            this.page=0;
+        if (item !== this.state.searchItem) {
+            this.page = 0;
             this.loadImages(item);
         }
     }
 
     //init the gallery, include fetching Random Photos
     loadImages(item) {
-        if(item) {
+        if (item) {
             this.page++;
-            unsplash.search.photos(item,this.page,loadingImageNum)
+            unsplash.search.photos(item, this.page, loadingImageNum)
                 .then(toJson)
                 .then(json => {
-                    this.setState({images: json.results, isLoading: false, searchItem:item});
+                    this.setState({images: json.results, isLoading: false, searchItem: item});
                 });
         } else {
-                unsplash.photos.getRandomPhoto({count: loadingImageNum})
-                    .then(toJson)
-                    .then(json => {
-                        this.setState({images: json, isLoading: false, searchItem:''});
-                    });
+            unsplash.photos.getRandomPhoto({count: loadingImageNum})
+                .then(toJson)
+                .then(json => {
+                    this.setState({images: json, isLoading: false, searchItem: ''});
+                });
         }
     }
 
@@ -78,9 +78,9 @@ class App extends React.Component {
         return (
             <div>
                 <h2>Gallery wall</h2>
-                <NavBar navBarClick={this.navBarClick} />
+                <NavBar navBarClick={this.navBarClick}/>
                 <Gallery images={this.state.images} item={this.state.searchItem}/>
-                {this.state.isLoading && <LoadingScreen />}
+                {isLoading && <LoadingScreen/>}
             </div>
         );
     }
@@ -89,7 +89,7 @@ class App extends React.Component {
 function LoadingScreen() {
     return (
         <div className="loading ">
-            <div className="loading-icon"> </div>
+            <div className="loading-icon"></div>
             <p>Loading...</p>
         </div>
     );
@@ -102,10 +102,10 @@ class Gallery extends React.Component {
             thumbs: [],
             image: {},
             currentId: 0,
-            imageListLastIndex:-1,
-            forcePopup:false,
+            imageListLastIndex: -1,
+            forcePopup: false,
         };
-        this.imageList =[]
+        this.imageList = []
         this.imageIndex = -1;
         this.prevId = -1;
         this.init = false;
@@ -114,7 +114,7 @@ class Gallery extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if(this.props.item !== prevProps.item) {
+        if (this.props.item !== prevProps.item) {
             this.initNewRender();
         }
 
@@ -124,19 +124,19 @@ class Gallery extends React.Component {
     }
 
     initNewRender() {
-        this.imageList =[]
+        this.imageList = []
         this.imageIndex = -1;
         this.prevId = -1;
         this.init = true;
-        this.setState({image:{}, currentId:0,forcePopup:false});
+        this.setState({image: {}, currentId: 0, forcePopup: false});
     }
 
     handleClick(id) {
-        if(id > -1) {
-            if(this.prevId === id) {
+        if (id > -1) {
+            if (this.prevId === id) {
                 this.setState({forcePopup: true});
                 setTimeout(
-                    () => this.setState({ forcePopup: false}),
+                    () => this.setState({forcePopup: false}),
                     100
                 );
             } else {
@@ -151,26 +151,27 @@ class Gallery extends React.Component {
         unsplash.photos.getPhoto(imageId)
             .then(toJson)
             .then(json => {
-                this.setState({image:json, currentId:id});
+                this.setState({image: json, currentId: id});
             });
     }
 
     renderThumb(images) {
-        const thumbs = this.init? []:this.state.thumbs;
+        const thumbs = this.init ? [] : this.state.thumbs;
 
-        if( images.length > 0) {
-            this.imageIndex = this.init? -1:this.state.imageListLastIndex;
-            if(images.length > 0) {
+        if (images.length > 0) {
+            this.imageIndex = this.init ? -1 : this.state.imageListLastIndex;
+            if (images.length > 0) {
                 thumbs.push(images.map((data) => {
                     this.imageIndex++;
                     this.imageList.push(data.id);
-                    return (<Thumb url={data.urls && data.urls.thumb} key={data.id} desc={data.alt_description} current={this.imageIndex} onClick={this.handleClick}/>);
+                    return (<Thumb url={data.urls && data.urls.thumb} key={data.id} desc={data.alt_description}
+                                   current={this.imageIndex} onClick={this.handleClick}/>);
                 }));
             }
-            this.setState({imageListLastIndex:this.imageIndex});
+            this.setState({imageListLastIndex: this.imageIndex});
         }
         this.init = false;
-        this.setState({thumbs:thumbs});
+        this.setState({thumbs: thumbs});
     }
 
     render() {
@@ -178,15 +179,16 @@ class Gallery extends React.Component {
         return (
             <div className="gallery">
                 <div className="waterfall">{this.state.thumbs}</div>
-                <PopupModal img={this.state.image} forcePopup={this.state.forcePopup} id={this.state.currentId} showNext={showNext} onClick={this.handleClick} />
+                <PopupModal img={this.state.image} forcePopup={this.state.forcePopup} id={this.state.currentId}
+                            showNext={showNext} onClick={this.handleClick}/>
             </div>
         );
     }
 }
 
-function Thumb (props) {
+function Thumb(props) {
     return (
-        <div className="item inbound" onClick={()=>props.onClick(props.current)}>
+        <div className="item inbound" onClick={() => props.onClick(props.current)}>
             <img
                 src={props.url}
                 alt={props.desc}
@@ -208,47 +210,49 @@ class PopupModal extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if ((this.props.forcePopup || this.props.img.id !== prevProps.img.id) && !this.state.show && this.props.img.id)  {
+        if ((this.props.forcePopup || this.props.img.id !== prevProps.img.id) && !this.state.show && this.props.img.id) {
             this.handleShow();
         }
     }
 
     handleClose() {
-        this.setState({ show: false });
+        this.setState({show: false});
     }
 
     handleShow() {
-        this.setState({ show: true });
+        this.setState({show: true});
     }
 
     render() {
         return (
             ReactDOM.createPortal(
-            <div>
-                <Modal show={this.state.show} onHide={this.handleClose} dialogClassName="custom-modal">
-                    <Modal.Header closeButton>
-                        <Modal.Title>{this.props.img.description}</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <h4>By: {this.props.img.user && this.props.img.user.name}</h4>
-                        <img
-                            src={this.props.img.urls && this.props.img.urls.regular}
-                            alt={this.props.img.alt_description}
-                        />
-                        <p>{this.props.img.descirption}</p>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button onClick={this.handleClose}>Close</Button>
-                    </Modal.Footer>
-                    <div className={"prev arrow " + (this.props.id>0?"":"hidden")}  onClick={()=>this.props.onClick(this.props.id-1)}></div>
-                    <div className={"next arrow" + (this.props.showNext?"":"hidden")}  onClick={()=>this.props.onClick(this.props.id+1)}></div>
-                </Modal>
-            </div>,document.body)
+                <div>
+                    <Modal show={this.state.show} onHide={this.handleClose} dialogClassName="custom-modal">
+                        <Modal.Header closeButton>
+                            <Modal.Title>{this.props.img.description}</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <h4>By: {this.props.img.user && this.props.img.user.name}</h4>
+                            <img
+                                src={this.props.img.urls && this.props.img.urls.regular}
+                                alt={this.props.img.alt_description}
+                            />
+                            <p>{this.props.img.descirption}</p>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button onClick={this.handleClose}>Close</Button>
+                        </Modal.Footer>
+                        <div className={"prev arrow " + (this.props.id > 0 ? "" : "hidden")}
+                             onClick={() => this.props.onClick(this.props.id - 1)}></div>
+                        <div className={"next arrow" + (this.props.showNext ? "" : "hidden")}
+                             onClick={() => this.props.onClick(this.props.id + 1)}></div>
+                    </Modal>
+                </div>, document.body)
         );
     }
 }
 
-class NavBar  extends React.Component {
+class NavBar extends React.Component {
     constructor(props) {
         super(props);
 
@@ -262,22 +266,24 @@ class NavBar  extends React.Component {
     };
 
     render() {
-    return(
-        <>
-        <Navbar variant="dark">
-            <Nav className="mr-auto">
-                <Nav.Link href="#random" onClick={()=>this.props.navBarClick()}>Random</Nav.Link>
-                <Nav.Link href="#animal" onClick={()=>this.props.navBarClick('animal')}>Animal</Nav.Link>
-                <Nav.Link href="#nature" onClick={()=>this.props.navBarClick('nature')}>Nature</Nav.Link>
-                <Nav.Link href="#people" onClick={()=>this.props.navBarClick('people')}>People</Nav.Link>
-            </Nav>
-            <Form inline>
-                <FormControl type="text" placeholder="Search" className="mr-sm-2" onChange={e => this.setState({ val: e.target.value })}/>
-                <Button variant="outline-info" onClick={this.onSubmit}>Search</Button>
-            </Form>
-        </Navbar>
-        </>
-    );
+        return (
+            <>
+                <Navbar variant="dark">
+                    <Nav className="mr-auto">
+                        <Nav.Link href="#random" onClick={() => this.props.navBarClick()}>Random</Nav.Link>
+                        <Nav.Link href="#animal" onClick={() => this.props.navBarClick('animal')}>Animal</Nav.Link>
+                        <Nav.Link href="#nature" onClick={() => this.props.navBarClick('nature')}>Nature</Nav.Link>
+                        <Nav.Link href="#people" onClick={() => this.props.navBarClick('people')}>People</Nav.Link>
+                    </Nav>
+                    <Form inline>
+                        <FormControl type="text" placeholder="Search" className="mr-sm-2"
+                                     onChange={e => this.setState({val: e.target.value})}/>
+                        <Button variant="outline-info" onClick={this.onSubmit}>Search</Button>
+                    </Form>
+                </Navbar>
+            </>
+        );
     }
 }
+
 export default App;
